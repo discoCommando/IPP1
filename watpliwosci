@@ -1,0 +1,36 @@
+OK
+So
+
+
+Problemy:
+	Wczytywanie:
+		1. Rodzaj błędow:
+			-dziwne znaki
+			-
+			//TODO
+		2. Wczytanie początkowe:
+			-sprawdzenie pierwszej litery
+			-odpalenie odpowiedzniej funkcji
+		Niech s - wczytany string
+		napisz funckje pos(var s: string, c:char, od_momentu: Integer): integer;
+		napisz funkcje czy_int(var copy_s: String, ograniczenie: LongInt): LongInt;
+			-zwraca tego inta jezeli jest dobry, otherwise -1;
+			-sprawdza dlugosc copy_s.
+			-sprawdza dlugosc copy_s z porowaniem do liczby danej przez val;
+		3. Przypisanie:
+		-jesli length(s) <= 17
+			-s[1] = '('
+				-znalezienie pozycji ')'
+					-jesli nie ma to koniec
+					-jesli jest to val od copy(s, 2, pos'(')
+						-jesli val nie wywala bledow i jest < 10^9 to dalej
+							-jesli length(s) > pos')' + 3
+								-s[pos')' + 1] = ':'
+									-s[pos')' + 2] = '='
+										-jesli jest to val od copy(s, pos')' + 3, lenght(s) - 1
+											-jesli val nie 													wywala 														bledow i 													jest < 10^3 to dalej
+		4. Suma
+		-jesli length(s) <= 32
+			-s[1] = 'u', s[2] = 'm', s[3] = 'a', s[4] = ','
+				-val od copy(s, 5, pos','
+				
