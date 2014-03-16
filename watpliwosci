@@ -28,7 +28,7 @@ Problemy:
 								-s[pos')' + 1] = ':'
 									-s[pos')' + 2] = '='
 										-jesli jest to val od copy(s, pos')' + 3, lenght(s) - 1
-											-jesli val nie 													wywala 														bledow i 													jest < 10^3 to dalej
+											-jesli val nie	wywala i bledow i jest < 10^3 to dalej
 		4. Suma
 		-jesli length(s) <= 32
 			-s[1] = 'u', s[2] = 'm', s[3] = 'a', s[4] = ','
