@@ -18,7 +18,7 @@ Problemy:
 			-sprawdza dlugosc copy_s.
 			-sprawdza dlugosc copy_s z porowaniem do liczby danej przez val;
 		3. Przypisanie:
-		-jesli length(s) <= 17
+		-jesli length(s) <= 19
 			-s[1] = '('
 				-znalezienie pozycji ')'
 					-jesli nie ma to koniec
@@ -30,7 +30,7 @@ Problemy:
 										-jesli jest to val od copy(s, pos')' + 3, lenght(s) - 1
 											-jesli val nie	wywala i bledow i jest < 10^3 to dalej
 		4. Suma
-		-jesli length(s) <= 32
+		-jesli length(s) <= 35
 			-s[1] = 'u', s[2] = 'm', s[3] = 'a', s[4] = ','
 				-val od copy(s, 5, pos','
 				
