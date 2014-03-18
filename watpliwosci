@@ -41,10 +41,11 @@ Problemy:
 			3 przypadki:
 			
 			napisanie procedure kopiującej i procedury dołączającej. 
+			spacer(var d: drzewo b(t-1); var d: drzewo b(t); wartosc: Integer);
 			-dodanie węzła do drzewa
-				-idąc spracerem 
-			- usunięcie węzła z drzewa
-			- nic nie robienie. 
+				-idąc spracerem kopiuje siebie, dołączam drzewo do którego nie wchodze 
+			-usunięcie węzła z drzewa
+			-nic nie robienie. 
 	
 	
 	
