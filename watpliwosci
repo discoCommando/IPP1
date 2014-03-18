@@ -45,6 +45,11 @@ Problemy:
 			-dodanie węzła do drzewa
 				-idąc spracerem kopiuje siebie, dołączam drzewo do którego nie wchodze 
 			-usunięcie węzła z drzewa
+				-ide spacerem i kopiuje siebie. Dochodzę do szukanego węzła. 2 przypadki:
+					-prawy węzeł pusty:
+						-dołączam lewy węzeł
+					-prawy węzeł niepusty:
+						-kopiuje get_min  
 			-nic nie robienie. 
 	
 	
