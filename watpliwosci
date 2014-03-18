@@ -34,3 +34,22 @@ Problemy:
 			-s[1] = 'u', s[2] = 'm', s[3] = 'a', s[4] = ','
 				-val od copy(s, 5, pos','
 				
+		zrobione
+		
+	drzewa:
+		1. Przypisanie:
+			3 przypadki:
+			
+			napisanie procedure kopiującej i procedury dołączającej. 
+			-dodanie węzła do drzewa
+				-idąc spracerem 
+			- usunięcie węzła z drzewa
+			- nic nie robienie. 
+	
+	
+	
+	
+	
+	
+	
+				
