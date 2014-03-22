@@ -4,6 +4,7 @@ program jeden;
 	drzewo = ^wezel;
 	wezel = record
 		klucz, wartosc, ilosc_dowiazan: Integer;
+		suma: LongInt; //suma od <0..klucz>
 		lsyn, psyn : drzewo
 	end;
 
@@ -16,8 +17,17 @@ begin
 	d^.ilosc_dowiazan := 1;
 	d^.klucz := klucz;
 	d^.wartosc := wartosc;
+	d^.suma := 0;
 	d^.psyn := nil;
 	d^.lsyn := nil;
+end;
+
+procedure uzupelnij_suma(var d: drzewo);
+begin
+	if (d^.lsyn <> nil) then begin
+		d^.suma := d^.lsyn^.suma;
+	end;
+	d^.suma := d^.suma + d^.wartosc;
 end;
 
 procedure dodaj_do_drzewa_pustego(var d: drzewo; const klucz, wartosc: integer; var liczba_wezlow: Integer);
@@ -26,6 +36,7 @@ begin
 	begin
 		inc(liczba_wezlow);
 		stworz_wezel(d, klucz, wartosc);
+		uzupelnij_suma(d);
 	end
 	else if (klucz > d^.klucz) then
 	begin
@@ -33,6 +44,7 @@ begin
 		begin
 			inc(liczba_wezlow);
 			stworz_wezel(d^.psyn, klucz, wartosc);
+			uzupelnij_suma(d^.psyn);
 		end
 		else 
 		begin
@@ -45,6 +57,7 @@ begin
 		begin
 			inc(liczba_wezlow);
 			stworz_wezel(d^.lsyn, klucz, wartosc);
+			uzupelnij_suma(d^.lsyn);
 		end
 		else 
 		begin
@@ -79,11 +92,13 @@ begin
 		begin
 			stworz_wezel(drzewo_wyjsciowe^.psyn, klucz, wartosc);
 			inc(ilosc_nowych_wezlow);
+			
 		end
 		else 
 		begin
 			dodaj_do_drzewa(drzewo_wczesniejsze^.psyn, drzewo_wyjsciowe^.psyn, klucz, wartosc, ilosc_nowych_wezlow);
 		end;
+		uzupelnij_suma(drzewo_wyjsciowe);
 		dopisz_wezel(drzewo_wczesniejsze^.lsyn, drzewo_wyjsciowe^.lsyn);
 	end
 	else if (klucz < drzewo_wczesniejsze^.klucz) then
@@ -92,6 +107,7 @@ begin
 		begin
 			stworz_wezel(drzewo_wyjsciowe^.lsyn, klucz, wartosc);
 			inc(ilosc_nowych_wezlow);
+			uzupelnij_suma(drzewo_wyjsciowe^.lsyn);
 		end
 		else 
 		begin
@@ -103,6 +119,7 @@ begin
 		dopisz_wezel(drzewo_wczesniejsze^.psyn, drzewo_wyjsciowe^.psyn);
 		dopisz_wezel(drzewo_wczesniejsze^.lsyn, drzewo_wyjsciowe^.lsyn);
 	end;
+	uzupelnij_suma(drzewo_wyjsciowe);
 end;
 
 procedure wypisz_drzewo(d : drzewo);
@@ -110,9 +127,16 @@ begin
 	if not (d = nil) then
 	begin
 		wypisz_drzewo(d^.lsyn);
-		writeln('wartosc: ', d^.klucz, ' ilosc_dowiazan: ', d^.ilosc_dowiazan);
 		wypisz_drzewo(d^.psyn);
+		
+		writeln('wartosc: ', d^.klucz, ' ilosc_dowiazan: ', d^.ilosc_dowiazan,' suma: ', d^.suma);
 	end;
+end;
+
+procedure usun_wezel(var wezel: drzewo);
+begin
+	dispose(wezel);
+	wezel := nil;
 end;
 
 procedure usun_cale_drzewo(var d : drzewo);
@@ -123,14 +147,12 @@ begin
 		if (d^.ilosc_dowiazan = 0) then begin
 			usun_cale_drzewo(d^.lsyn);
 			usun_cale_drzewo(d^.psyn);
-			dispose(d);
-			d := nil;
+			usun_wezel(d);
 		end;
 	end;
 end;
 
-function daj_minimalny(var d: drzewo): drzewo;
-
+function daj_minimalny(const d: drzewo): drzewo;
 begin
 	
 	if d <> nil then begin
@@ -138,35 +160,57 @@ begin
 			daj_minimalny := daj_minimalny(d^.lsyn);
 		end else begin
 			daj_minimalny := d;
-			d := d^.psyn;
 		end;
 	end else begin
 		daj_minimalny := nil;
 	end;
 end;
 
-procedure usun_wezel(var d: drzewo; wartosc: Integer);
-var drzewo_pom: drzewo;
+
+
+procedure kopiuj_minimalny(const drzewo_wczesniejsze: drzewo; var drzewo_wyjsciowe: drzewo);
 begin
-	if d <> nil then begin
-		if d^.klucz > wartosc then begin
-			usun_wezel(d^.lsyn, wartosc);
-		end else if d^.klucz < wartosc then begin
-			usun_wezel(d^.psyn, wartosc);
+	
+	if drzewo_wczesniejsze <> nil then begin
+		if (drzewo_wczesniejsze^.lsyn <> nil) then begin
+			kopiuj_wezel(drzewo_wczesniejsze, drzewo_wyjsciowe);
+			dopisz_wezel(drzewo_wczesniejsze^.psyn, drzewo_wyjsciowe^.psyn);
+			kopiuj_minimalny(drzewo_wczesniejsze^.lsyn, drzewo_wyjsciowe^.lsyn);
+			uzupelnij_suma(drzewo_wyjsciowe);
 		end else begin
-			drzewo_pom := d;
-			if d^.psyn = nil then begin
-				d := d^.lsyn;
-			end else begin
-				d := daj_minimalny(d^.psyn);
-				d^.lsyn := drzewo_pom^.lsyn;
-				d^.psyn := drzewo_pom^.psyn;
-			end;
-			dispose(drzewo_pom);
+			dopisz_wezel(drzewo_wczesniejsze^.psyn, drzewo_wyjsciowe);
 		end;
 	end;
 end;
 
+
+
+procedure usun_wezel_z_drzewa(const drzewo_wczesniejsze: drzewo;
+	var drzewo_wyjsciowe: drzewo; const klucz: Integer; var ilosc_nowych_wezlow: Integer);
+begin
+	if drzewo_wczesniejsze <> nil then begin
+		inc(ilosc_nowych_wezlow);
+		if drzewo_wczesniejsze^.klucz > klucz then begin
+			kopiuj_wezel(drzewo_wczesniejsze, drzewo_wyjsciowe);
+			usun_wezel_z_drzewa(drzewo_wczesniejsze^.lsyn, drzewo_wyjsciowe^.lsyn, klucz, ilosc_nowych_wezlow);
+			uzupelnij_suma(drzewo_wyjsciowe);
+		end else if drzewo_wczesniejsze^.klucz < klucz then begin
+			kopiuj_wezel(drzewo_wczesniejsze, drzewo_wyjsciowe);
+			usun_wezel_z_drzewa(drzewo_wczesniejsze^.psyn, drzewo_wyjsciowe^.psyn, klucz, ilosc_nowych_wezlow);
+			uzupelnij_suma(drzewo_wyjsciowe);
+		end else begin
+			if drzewo_wczesniejsze^.psyn = nil then begin
+				dopisz_wezel(drzewo_wczesniejsze^.lsyn, drzewo_wyjsciowe);
+				dec(ilosc_nowych_wezlow);
+			end else begin
+				kopiuj_wezel(daj_minimalny(drzewo_wczesniejsze^.psyn), drzewo_wyjsciowe);
+				kopiuj_minimalny(drzewo_wczesniejsze^.psyn, drzewo_wyjsciowe^.psyn);
+				dopisz_wezel(drzewo_wczesniejsze^.lsyn, drzewo_wyjsciowe^.lsyn);
+				uzupelnij_suma(drzewo_wyjsciowe);
+			end;
+		end;
+	end;
+end;
 
 var 
 	liczba, liczba_wezlow: Integer;
@@ -180,17 +224,16 @@ begin
 		readln(liczba);
 		if (liczba > 0) then begin
 			dodaj_do_drzewa_pustego(d, liczba, 1, liczba_wezlow);
-		end else if (liczba < 0) then begin
-			usun_wezel(d, -liczba);
 		end;
 	end;
 	writeln('liczba wezlow: ', liczba_wezlow);
 	readln(liczba);
 	d2 := nil;
-	dodaj_do_drzewa(d, d2, liczba, 1, liczba_wezlow);
-	writeln('liczba wezlow: ', liczba_wezlow);
+	usun_wezel_z_drzewa(d, d2, liczba, liczba_wezlow);
+	
 	wypisz_drzewo(d);
 	writeln('drgie dzewo');
+	writeln('liczba wezlow: ', liczba_wezlow);
 	wypisz_drzewo(d2);
 	usun_cale_drzewo(d);
 	usun_cale_drzewo(d2);
