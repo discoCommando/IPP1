@@ -42,6 +42,9 @@ Problemy:
 			
 			napisanie procedure kopiującej i procedury dołączającej. 
 			spacer(const d: drzewo b(t-1); var d: drzewo b(t); wartosc: Integer);
+			
+			dobra kurwy.
+				
 			-dodanie węzła do drzewa
 				-idąc spracerem kopiuje siebie, dołączam drzewo do którego nie wchodze 
 			-usunięcie węzła z drzewa
