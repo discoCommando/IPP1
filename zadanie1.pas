@@ -1,13 +1,16 @@
 program zadanie1;
 uses drzewa;
 
-
-
-const IGNOROWANIE = 'Zignorowano';
+const IGNOROWANIE = 'zignorowano';
 const OGR_DZIEDZINA = 1000000000;
 const OGR_ZW = 1000;
 const OGR_LICZBA_PRZYPISAN = 1000000;
-	
+
+var tablica_drzew: array [0..OGR_LICZBA_PRZYPISAN] of drzewo; 
+var liczba_wezlow: LongInt;
+var indeks: LongInt;
+var liczba_poprawnych_polecen: LongInt;
+
 procedure wczytaj_pierwsza_litere(const linijka: String); forward;
 procedure wczytaj_przypisanie(const linijka: String); forward;
 procedure wczytaj_czysc(const linijka: String); forward;
@@ -17,7 +20,9 @@ function parsuj_int(const slowo: String; const ograniczenie: LongInt): LongInt; 
 procedure wczytaj_linijke(); forward;
 procedure wypisz_zignorowanie(); forward;
 function dlugosc_liczby(const liczba: LongInt): Integer; forward;
-
+procedure przypisanie(const x, y: LongInt); forward;
+procedure suma(const t, a, b: LongInt); forward;
+procedure czysc(const t: LongInt); forward;
 
 
 procedure wczytaj_linijke();
@@ -34,13 +39,15 @@ end;
 
 procedure wczytaj_pierwsza_litere(const linijka: String);
 begin
-	case linijka[1] of
-		'f': wczytaj_przypisanie(linijka);
-		's': wczytaj_suma(linijka);
-		'c': wczytaj_czysc(linijka);
-	else
-		wypisz_zignorowanie();
-	end;
+	if (length(linijka)  > 1) then begin
+		case linijka[1] of
+			'f': wczytaj_przypisanie(linijka);
+			's': wczytaj_suma(linijka);
+			'c': wczytaj_czysc(linijka);
+		else
+			wypisz_zignorowanie();
+		end;
+	end else wypisz_zignorowanie();
 end;
 
 procedure wczytaj_przypisanie(const linijka: String);
@@ -72,7 +79,9 @@ begin
 	end;
 	
 	if(prawidlowe_przypisanie) then begin
-		writeln('f(', argument, '):=', wartosc);
+		inc(indeks);
+		przypisanie(argument, wartosc);
+		inc(liczba_poprawnych_polecen);
 	end else begin
 		wypisz_zignorowanie();
 	end;
@@ -96,14 +105,15 @@ begin
 			if (pozycja_nawias = dlugosc_linijki) then begin
 				argument := 
 					parsuj_int(copy(linijka, 7, pozycja_nawias - length('czysc()')), OGR_LICZBA_PRZYPISAN);
-				if (argument > 0) then begin
+				if (argument >= 0) and (argument <= indeks) then begin
 					prawidlowe_czyszczenie := true;
 				end;
 			end;
 		end;
 	end;
 	if(prawidlowe_czyszczenie) then begin
-		writeln('czysc', argument);
+		czysc(argument);
+		inc(liczba_poprawnych_polecen);
 	end else begin
 		wypisz_zignorowanie();
 	end;
@@ -127,7 +137,7 @@ begin
 				t := 
 					parsuj_int(copy(linijka, 6, pozycja_przecinek - length('suma(,')), OGR_LICZBA_PRZYPISAN);
 				 //copy jest od (slowo, od i ile)
-				if (t > 0) then begin
+				if (t >= 0) and (t <= indeks) then begin
 					pozycja_kropka := pozycja_litery(linijka, '.', pozycja_przecinek);
 						//skoro tu jestem to nie ma kropki po w "liczbie"
 					if (pozycja_kropka < dlugosc_linijki) 
@@ -136,16 +146,13 @@ begin
 						a := 
 							parsuj_int(copy(linijka, pozycja_przecinek + 1,
 								pozycja_kropka - pozycja_przecinek - 1), OGR_DZIEDZINA);
-						writeln(copy(linijka, pozycja_przecinek + 1,
-								pozycja_kropka - pozycja_przecinek - 1));
+							
 						if (a >= 0) then begin
 							pozycja_nawias := pozycja_litery(linijka, ')', 1); 
 							if (pozycja_nawias = dlugosc_linijki) then begin 
 								b := 
 									parsuj_int(copy(linijka, pozycja_przecinek + dlugosc_liczby(a) + 3,
-										pozycja_kropka - pozycja_przecinek - 1), OGR_DZIEDZINA);
-								writeln(copy(linijka, pozycja_przecinek + dlugosc_liczby(a) + 3,
-										pozycja_kropka - pozycja_przecinek - 1));
+										pozycja_nawias - (pozycja_przecinek + dlugosc_liczby(a) + 3)), OGR_DZIEDZINA);
 								if (a <= b) and (b >= 0) then begin
 									prawidlowa_suma := true;
 								end;
@@ -157,8 +164,9 @@ begin
 		end;
 	end;
 	
-	if(prawidlowa_suma) then begin
-		writeln('suma ', t, ', ', a, ', ', b);
+	if (prawidlowa_suma)then begin
+		suma(t,a,b);
+		inc(liczba_poprawnych_polecen);
 	end else begin
 		wypisz_zignorowanie();
 	end;
@@ -199,8 +207,75 @@ begin
 	dlugosc_liczby := wynik;
 end;
 
+procedure przypisanie(const x, y: LongInt);
 begin
-	while not seekeof do begin
+	if (tablica_drzew[indeks - 1] = nil) then begin
+		if (y > 0) then begin
+			dodaj_do_drzewa_pustego(tablica_drzew[indeks], x, y, liczba_wezlow);
+		end;
+	end else begin
+		if (y > 0) then begin
+			if not (czy_istnieje(tablica_drzew[indeks - 1], x, y)) then begin
+				dodaj_do_drzewa(tablica_drzew[indeks - 1], tablica_drzew[indeks], x, y, liczba_wezlow)
+			end else begin
+				dopisz_wezel(tablica_drzew[indeks - 1], tablica_drzew[indeks]);
+			end;
+		end else begin
+			usun_wezel_z_drzewa(tablica_drzew[indeks - 1], tablica_drzew[indeks], x, liczba_wezlow) 
+		end;
+	end;
+	writeln('wezlow: ', liczba_wezlow);
+end;
+
+procedure suma(const t, a, b: LongInt);
+var wynik: LongInt;
+begin
+	if (a > 0) then begin
+		wynik := oblicz_sume(tablica_drzew[t], b) - oblicz_sume(tablica_drzew[t], a - 1);
+	end else begin
+		wynik := oblicz_sume(tablica_drzew[t], b);
+	end;
+	
+	writeln('suma(',t,',',a,'..',b,')=',wynik);
+end;
+
+procedure czysc(const t: LongInt);
+begin
+	usun_cale_drzewo(tablica_drzew[t], liczba_wezlow);
+	writeln('wezlow: ', liczba_wezlow);
+end;
+
+procedure inicjacja();
+var licznik: LongInt;
+begin
+	licznik := 0;
+	while (licznik <= OGR_LICZBA_PRZYPISAN) do begin
+		tablica_drzew[licznik] := nil;
+		inc(licznik);
+	end;
+	indeks := 0;
+	liczba_wezlow := 0;
+	liczba_poprawnych_polecen := 0;
+end;
+
+procedure czyszczenie();
+var licznik: LongInt;
+begin
+	licznik := 0;
+	while (licznik <= OGR_LICZBA_PRZYPISAN) do begin
+		usun_cale_drzewo(tablica_drzew[OGR_LICZBA_PRZYPISAN - licznik], liczba_wezlow);
+		inc(licznik);
+	end;
+end;
+
+begin
+	inicjacja();
+	while (not seekeof) and (liczba_poprawnych_polecen <= OGR_LICZBA_PRZYPISAN)do begin
 		wczytaj_linijke();
 	end;
+	
+// 	while not seekeof do begin
+// 		wypisz_zignorowanie;
+// 	end;
+	czyszczenie();
 end.
